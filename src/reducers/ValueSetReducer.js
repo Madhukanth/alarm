@@ -2,14 +2,17 @@ import {
 	SLIDER_CHANGED,
 	SWITCH_CHANGED,
 	SONG_CHANGED,
-	CHECK_BOX_CHANGED
+	CHECK_BOX_CHANGED,
+	FETCH_VALUES,
+	PICKER_VALUE_CHANGE
 } from '../actions/types';
 
 const INITIAL_STATE = {
 	sliderValue: 100,
 	switchValue: true,
 	songValue: 'karuppana',
-	checkBoxValue: false
+	checkBoxValue: false,
+	pickerValue: true
 };
 
 export default (state = INITIAL_STATE, action) => {
@@ -21,7 +24,11 @@ export default (state = INITIAL_STATE, action) => {
 		case SONG_CHANGED:
 			return { ...state, songValue: action.payload };
 		case CHECK_BOX_CHANGED:
-			return { ...state, checkBoxValue: !action.payload };
+			return { ...state, checkBoxValue: action.payload };
+		case FETCH_VALUES:
+			return { ...state };
+		case PICKER_VALUE_CHANGE:
+			return { ...state, pickerValue: !action.payload };
 		default:
 			return state;
 	}

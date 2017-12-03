@@ -1,169 +1,37 @@
 import React, { Component } from 'react';
-import { Text, View, Picker, Vibration } from 'react-native';
+import { Text, View, Picker } from 'react-native';
 import { connect } from 'react-redux';
-import DeviceBattery from 'react-native-device-battery';
 import { Switch } from 'react-native-switch';
-import timer from 'react-native-timer';
 import Slider from 'react-native-slider';
-import Sound from 'react-native-sound';
 import CheckBox from 'react-native-checkbox';
 import { Card, CardSection } from './common';
 import {
 	slider2Changed,
 	switch2Changed,
 	song2Changed,
-	checkBox2Changed
+	checkBox2Changed,
+	picker2ValueChanged
 } from '../actions/ValueSetActions2';
 //import MusicFiles from 'react-native-get-music-files';
 //import BackgroundTimer from 'react-native-background-timer';
 
-let level1 = 0;
-const level2 = 100;
-let level3 = 0;
-let cod = '';
-let dhaam = '';
-let karuppana = '';
-
 class Alarm2 extends Component<{}> {
-	constructor(props) {
-		super(props);
-
-		DeviceBattery.getBatteryLevel().then(level => {
-			level1 = level.toFixed(2);
-			level3 = level1 * level2;
-			this.setState({ batteryLevel: level3 });
-		});
-
-		cod = new Sound('codplay.mp3', Sound.MAIN_BUNDLE, error => {
-			if (error) {
-				console.log(error);
-				return;
-			}
-			console.log(cod);
-		});
-		dhaam = new Sound('dhaam.mp3', Sound.MAIN_BUNDLE, error => {
-			if (error) {
-				console.log(error);
-				return;
-			}
-			console.log(dhaam);
-		});
-		karuppana = new Sound('karuppana.mp3', Sound.MAIN_BUNDLE, error => {
-			if (error) {
-				console.log(error);
-				return;
-			}
-			console.log(karuppana);
-		});
-	}
-	state = {
-		batteryLevel: null,
-		charging: null
-	};
-
-	componentWillMount() {
-		this.getBatteryStatus();
-	}
-
-	getBatteryStatus = () => {
-		timer.setInterval(
-			this,
-			'BatteryLevel',
-			() => {
-				DeviceBattery.getBatteryLevel().then(level => {
-					level1 = level.toFixed(2);
-					level3 = level1 * level2;
-					this.setState({ batteryLevel: level3 });
-				});
-
-				DeviceBattery.isCharging().then(isCharging => {
-					this.setState({ charging: isCharging });
-				});
-
-				if (
-					this.props.slider2Value === this.state.batteryLevel &&
-					this.props.switch2Value === true &&
-					this.props.checkBox2Value === true
-				) {
-					Vibration.vibrate();
-					if (this.props.song2Value === 'cod') {
-						cod.play(success => {
-							if (success) {
-								console.log('11successfully finished playing');
-							} else {
-								console.log('11playback failed due to audio decoding errors');
-							}
-						});
-					} else if (this.props.song2Value === 'dhaam') {
-						dhaam.play(success => {
-							if (success) {
-								console.log('22successfully finished playing');
-							} else {
-								console.log('22playback failed due to audio decoding errors');
-							}
-						});
-					} else {
-						karuppana.play(success => {
-							if (success) {
-								console.log('33successfully finished playing');
-							} else {
-								console.log('33playback failed due to audio decoding errors');
-							}
-						});
-					}
-				}
-			},
-			3000
-		);
-
-		if (this.props.checkBox2Value === false) {
-			Vibration.cancel();
-		}
-
-		if (this.props.song2Value === 'cod') {
-			cod.stop();
-		} else if (this.props.song2Value === 'dhaam') {
-			dhaam.stop();
-		} else {
-			karuppana.stop();
-		}
-		const onBatteryStateChanged = state => {
-			console.log(state);
-		};
-
-		DeviceBattery.addListener(onBatteryStateChanged);
-		// 	MusicFiles.get(
-		// 		success => {
-		// 			console.log(success);
-		// 		},
-		//
-		// 		error => {
-		// 			console.log(error);
-		// 		}
-		// 	);
-	};
-	offAlarm = () => {
-		Vibration.cancel();
-		if (this.props.song2Value === 'cod') {
-			cod.stop();
-		} else if (this.props.song2Value === 'dhaam') {
-			dhaam.stop();
-		} else {
-			karuppana.stop();
-		}
-	};
-
 	render() {
 		return (
 			<Card style={{ marginBottom: 300 }}>
-				<CardSection style={{ height: 40, borderBottomWidth: 0 }}>
+				<CardSection style={{ height: 130, borderBottomWidth: 0 }}>
 					<View style={{ width: 270 }}>
+						<Text
+							style={{ paddingLeft: 130, fontWeight: 'bold', fontSize: 20 }}
+						>
+							ALARM2
+						</Text>
 						<Text
 							style={{
 								fontSize: 17,
 								fontWeight: 'bold',
 								justifyContent: 'flex-start',
-								paddingTop: 10,
+								paddingTop: 60,
 								paddingLeft: 50
 							}}
 						>
@@ -219,6 +87,7 @@ class Alarm2 extends Component<{}> {
 						}}
 						selectedValue={this.props.song2Value}
 						onValueChange={selected => this.props.song2Changed(selected)}
+						enabled={this.props.picker2Value}
 					>
 						<Picker.Item label="codplay" value="cod" />
 						<Picker.Item label="Dhaam Dhoom" value="dhaam" />
@@ -239,16 +108,18 @@ class Alarm2 extends Component<{}> {
 	}
 }
 
-const mapStateToProps = state2 => ({
-	slider2Value: state2.valueset2.slider2Value,
-	switch2Value: state2.valueset2.switch2Value,
-	song2Value: state2.valueset2.song2Value,
-	checkBox2Value: state2.valueset2.checkBox2Value
+const mapStateToProps = state => ({
+	slider2Value: state.valueset2.slider2Value,
+	switch2Value: state.valueset2.switch2Value,
+	song2Value: state.valueset2.song2Value,
+	checkBox2Value: state.valueset2.checkBox2Value,
+	pickerValue: state.valueset2.picker2Value
 });
 
 export default connect(mapStateToProps, {
 	slider2Changed,
 	switch2Changed,
 	song2Changed,
-	checkBox2Changed
+	checkBox2Changed,
+	picker2ValueChanged
 })(Alarm2);

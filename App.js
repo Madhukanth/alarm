@@ -3,11 +3,12 @@ import { AppState, AsyncStorage } from 'react-native';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import { createLogger } from 'redux-logger';
+import thunk from 'redux-thunk';
 import reducers from './src/reducers';
 import AlarmList from './src/components/AlarmList';
 import { Spinner } from './src/components/common/Spinner';
 
-const middleware = applyMiddleware(createLogger());
+const middleware = applyMiddleware(thunk, createLogger());
 
 const store = createStore(reducers, middleware);
 class App extends Component {
@@ -21,7 +22,7 @@ class App extends Component {
 
 	componentWillMount() {
 		const self = this;
-		AppState.addEventListener('change', this.handleAppStateChange.bind(this));
+		AppState.addEventListener('change', this.handleAppStateChange);
 		this.setState({ isStoreLoading: true });
 		AsyncStorage.getItem('completeStore')
 			.then(value => {
@@ -41,15 +42,12 @@ class App extends Component {
 			});
 	}
 	componentWillUnmount() {
-		AppState.removeEventListener(
-			'change',
-			this.handleAppStateChange.bind(this)
-		);
+		AppState.removeEventListener('change', this.handleAppStateChange);
 	}
-	handleAppStateChange() {
+	handleAppStateChange = () => {
 		const storingValue = JSON.stringify(this.state.store.getState());
 		AsyncStorage.setItem('completeStore', storingValue);
-	}
+	};
 
 	render() {
 		if (this.state.isStoreLoading) {
